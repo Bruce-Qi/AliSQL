@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}编辑 - {{ item.title }}{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <div class="settings-card">
+        <h2 class="section-title">编辑宝贝</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>添加更多图片</label>
+                <div class="upload-area" onclick="event.stopPropagation()">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <p>点击上传更多图片</p>
+                    <input type="file" id="image-input" name="images" multiple accept="image/*" style="display:none">
+                </div>
+                {% if item.images.count() > 0 %}
+                <div class="upload-preview" style="margin-top:12px">
+                    {% for img in item.images %}
+                    <div class="upload-preview-item">
+                        <img src="{{ url_for('static', filename='uploads/' + img.filename) }}" alt="existing">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="upload-preview" id="image-preview"></div>
+            </div>
+
+            <div class="form-group">
+                <label>标题 *</label>
+                <input type="text" name="title" class="form-control" value="{{ item.title }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>详细描述 *</label>
+                <textarea name="description" class="form-control" required rows="5">{{ item.description }}</textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>价格 (元) *</label>
+                    <input type="number" name="price" class="form-control" value="{{ item.price }}" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>原价 (元)</label>
+                    <input type="number" name="original_price" class="form-control" value="{{ item.original_price }}" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>成色</label>
+                <div class="condition-options">
+                    {% for val, label in [('new', '全新'), ('like_new', '几乎全新'), ('good', '成色较好'), ('fair', '有使用痕迹')] %}
+                    <div class="condition-option">
+                        <input type="radio" name="condition" id="cond-{{ val }}" value="{{ val }}" {{ 'checked' if item.condition == val }}>
+                        <label for="cond-{{ val }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>分类</label>
+                    <select name="category_id" class="form-control">
+                        <option value="">选择分类</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {{ 'selected' if item.category_id == cat.id }}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>所在地</label>
+                    <input type="text" name="location" class="form-control" value="{{ item.location }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>状态</label>
+                <select name="status" class="form-control">
+                    <option value="available" {{ 'selected' if item.status == 'available' }}>在售</option>
+                    <option value="reserved" {{ 'selected' if item.status == 'reserved' }}>已预定</option>
+                    <option value="sold" {{ 'selected' if item.status == 'sold' }}>已售出</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:12px;">
+                <button type="submit" class="btn btn-primary" style="flex:1">保存修改</button>
+                <a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-secondary" style="flex:1">取消</a>
+            </div>
+        </form>
+
+        <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" style="margin-top:24px; text-align:center;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('确认删除该商品？此操作不可撤销。')">
+                删除此商品
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>setupImageUpload('image-input', 'image-preview');</script>
+{% endblock %}

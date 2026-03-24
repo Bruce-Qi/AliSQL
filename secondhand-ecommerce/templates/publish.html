@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}发布宝贝{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <div class="settings-card">
+        <h2 class="section-title">发布宝贝</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>商品图片</label>
+                <div class="upload-area" onclick="event.stopPropagation()">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <p>点击或拖拽上传图片（最多9张）</p>
+                    <input type="file" id="image-input" name="images" multiple accept="image/*" style="display:none">
+                </div>
+                <div class="upload-preview" id="image-preview"></div>
+            </div>
+
+            <div class="form-group">
+                <label>标题 *</label>
+                <input type="text" name="title" class="form-control" placeholder="描述一下你的宝贝" required maxlength="200">
+            </div>
+
+            <div class="form-group">
+                <label>详细描述 *</label>
+                <textarea name="description" class="form-control" placeholder="详细描述宝贝的使用情况、购入时间、转手原因等" required rows="5"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>价格 (元) *</label>
+                    <input type="number" name="price" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>原价 (元)</label>
+                    <input type="number" name="original_price" class="form-control" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>成色</label>
+                <div class="condition-options">
+                    <div class="condition-option">
+                        <input type="radio" name="condition" id="cond-new" value="new">
+                        <label for="cond-new">全新</label>
+                    </div>
+                    <div class="condition-option">
+                        <input type="radio" name="condition" id="cond-like_new" value="like_new">
+                        <label for="cond-like_new">几乎全新</label>
+                    </div>
+                    <div class="condition-option">
+                        <input type="radio" name="condition" id="cond-good" value="good" checked>
+                        <label for="cond-good">成色较好</label>
+                    </div>
+                    <div class="condition-option">
+                        <input type="radio" name="condition" id="cond-fair" value="fair">
+                        <label for="cond-fair">有使用痕迹</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>分类</label>
+                    <select name="category_id" class="form-control">
+                        <option value="">选择分类</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>所在地</label>
+                    <input type="text" name="location" class="form-control" placeholder="如：北京市朝阳区">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">发布宝贝</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>setupImageUpload('image-input', 'image-preview');</script>
+{% endblock %}

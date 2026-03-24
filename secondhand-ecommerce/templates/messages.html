@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}消息{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <h2 class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        我的消息
+    </h2>
+
+    {% if conversations %}
+    <div class="conversation-list">
+        {% for conv in conversations %}
+        <a href="{{ url_for('chat', user_id=conv.user.id) }}" class="conversation-item">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <div class="conversation-info">
+                <div class="conversation-name">
+                    {{ conv.user.username }}
+                    {% if conv.unread > 0 %}
+                    <span class="badge" style="position:static; display:inline-flex; margin-left:8px;">{{ conv.unread }}</span>
+                    {% endif %}
+                </div>
+                <div class="conversation-preview">{{ conv.last_message.content }}</div>
+            </div>
+            <div class="conversation-meta">
+                <div class="conversation-time">{{ conv.last_message.created_at.strftime('%m-%d %H:%M') }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <h3>暂无消息</h3>
+        <p>去看看感兴趣的宝贝，和卖家聊聊吧！</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">去逛逛</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

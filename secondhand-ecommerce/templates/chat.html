@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}与 {{ other_user.username }} 聊天{% endblock %}
+
+{% block content %}
+<div class="container page-content" style="padding-top:12px; padding-bottom:12px;">
+    <div class="chat-container">
+        <div class="chat-header">
+            <a href="{{ url_for('messages') }}" style="display:flex;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </a>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <div>
+                <div style="font-weight:600;">{{ other_user.username }}</div>
+                <div style="font-size:12px; color:var(--gray-500);">{{ other_user.location or '未知位置' }}</div>
+            </div>
+        </div>
+
+        {% if item %}
+        <div class="chat-item-card">
+            {% if item.images.first() %}
+            <img src="{{ url_for('static', filename='uploads/' + item.images.first().filename) }}" alt="{{ item.title }}">
+            {% endif %}
+            <div>
+                <div style="font-weight:600; font-size:14px;">{{ item.title }}</div>
+                <div style="color:var(--primary); font-weight:700;">&yen;{{ "%.0f"|format(item.price) }}</div>
+            </div>
+        </div>
+        <input type="hidden" id="chat-item-id" value="{{ item.id }}">
+        {% endif %}
+
+        <div class="chat-messages" id="chat-messages">
+            {% for msg in messages %}
+            <div class="message {{ 'sent' if msg.sender_id == current_user.id else 'received' }}" data-id="{{ msg.id }}">
+                <div>
+                    <div class="message-bubble">{{ msg.content }}</div>
+                    <div class="message-time">{{ msg.created_at.strftime('%m-%d %H:%M') }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="输入消息..." autocomplete="off">
+            <button id="chat-send">发送</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>initChat({{ other_user.id }}, {{ current_user.id }});</script>
+{% endblock %}
