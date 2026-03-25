@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}我的订单{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+    <h2 class="section-title">我的订单</h2>
+
+    <div class="tabs">
+        <a href="{{ url_for('my_orders', tab='buy') }}" class="tab {{ 'active' if tab == 'buy' else '' }}">我买到的</a>
+        <a href="{{ url_for('my_orders', tab='sell') }}" class="tab {{ 'active' if tab == 'sell' else '' }}">我卖出的</a>
+    </div>
+
+    {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-header">
+            <span class="order-no">订单号: {{ order.order_no }}</span>
+            <span class="order-status status-{{ order.status }}">
+                {% if order.status == 'pending' %}待付款
+                {% elif order.status == 'paid' %}已付款
+                {% elif order.status == 'shipped' %}已发货
+                {% elif order.status == 'completed' %}已完成
+                {% elif order.status == 'cancelled' %}已取消
+                {% endif %}
+            </span>
+        </div>
+        <a href="{{ url_for('order_detail', order_id=order.id) }}" class="order-item">
+            {% if order.item.images.first() %}
+            <img src="{{ url_for('static', filename='uploads/' + order.item.images.first().filename) }}" alt="{{ order.item.title }}">
+            {% else %}
+            <div style="width:80px;height:80px;background:var(--gray-100);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)" stroke-width="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+            </div>
+            {% endif %}
+            <div>
+                <div class="order-item-title">{{ order.item.title }}</div>
+                <div class="order-item-price">&yen;{{ "%.0f"|format(order.price) if order.price == order.price|int else "%.2f"|format(order.price) }}</div>
+                <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">
+                    {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}
+                </div>
+            </div>
+        </a>
+        <div class="order-actions">
+            {% if tab == 'buy' %}
+                {% if order.status == 'pending' %}
+                <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:inline">
+                    <input type="hidden" name="action" value="cancel">
+                    <button class="btn btn-secondary" onclick="return confirm('确认取消订单？')">取消订单</button>
+                </form>
+                <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:inline">
+                    <input type="hidden" name="action" value="pay">
+                    <button class="btn btn-primary">去付款</button>
+                </form>
+                {% elif order.status == 'shipped' %}
+                <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:inline">
+                    <input type="hidden" name="action" value="confirm">
+                    <button class="btn btn-success">确认收货</button>
+                </form>
+                {% endif %}
+            {% else %}
+                {% if order.status == 'paid' %}
+                <form method="POST" action="{{ url_for('update_order', order_id=order.id) }}" style="display:inline">
+                    <input type="hidden" name="action" value="ship">
+                    <button class="btn btn-primary">发货</button>
+                </form>
+                {% endif %}
+            {% endif %}
+            <a href="{{ url_for('chat', user_id=(order.seller_id if tab == 'buy' else order.buyer_id)) }}" class="btn btn-secondary">联系{{ '卖家' if tab == 'buy' else '买家' }}</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <h3>暂无订单</h3>
+        <p>{{ '去逛逛，发现你想要的宝贝吧！' if tab == 'buy' else '发布宝贝，等待买家光临吧！' }}</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">{{ '去逛逛' if tab == 'buy' else '去发布' }}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
